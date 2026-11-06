@@ -1,0 +1,72 @@
+name: Android APK Build
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      # SetupWizardLibrary is bundled in libs/. Only fetch it if the folder is missing.
+      - name: Ensure SetupWizardLibrary
+        run: |
+          if [ ! -f libs/SetupWizardLibrary/library/standalone.gradle ]; then
+            rm -rf libs/SetupWizardLibrary
+            git clone https://github.com/PeterCxy/SetupWizardLibrary.git libs/SetupWizardLibrary
+            git -C libs/SetupWizardLibrary checkout ae5ee4b4a0fb380c99e05f53b753cc86b212f1dd
+          fi
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Android SDK components
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0" || true
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build debug APK
+        run: |
+          chmod +x ./gradlew
+          set +e
+          ./gradlew :app:assembleDebug --no-daemon --console=plain > build.log 2>&1
+          code=$?
+          set -e
+          tail -n 60 build.log
+          if [ $code -ne 0 ]; then
+            # Show the real reason as a red annotation at the top of the run page
+            reason=$(grep -n -m1 -E "What went wrong|FAILURE:|error:|Could not|Unresolved|Execution failed" build.log | cut -d: -f1)
+            [ -z "$reason" ] && reason=1
+            msg=$(sed -n "${reason},$((reason+14))p" build.log | cut -c1-300 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=Build failed (reason)::${msg}"
+            first=$(grep -m3 -E "^e: |error:|AAPT|Android resource|Duplicate|not found" build.log | cut -c1-300 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            [ -n "$first" ] && echo "::error title=First errors::${first}"
+            exit $code
+          fi
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14

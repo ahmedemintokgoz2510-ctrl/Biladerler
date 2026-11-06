@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <androidx.preference.PreferenceCategory
+        android:title="@string/settings_interaction">
+
+        <androidx.preference.CheckBoxPreference
+            android:key="settings_cross_profile_file_chooser"
+            android:title="@string/settings_cross_profile_file_chooser"
+            android:summary="@string/settings_cross_profile_file_chooser_desc" />
+
+        <androidx.preference.CheckBoxPreference
+            android:key="settings_block_contacts_searching"
+            android:title="@string/settings_block_contacts_searching"
+            android:summary="@string/settings_block_contacts_searching_desc" />
+
+        <androidx.preference.CheckBoxPreference
+            android:key="settings_payment_stub"
+            android:title="@string/settings_payment_stub"
+            android:summary="@string/settings_payment_stub_desc" />
+
+    </androidx.preference.PreferenceCategory>
+
+    <androidx.preference.PreferenceCategory
+        android:title="@string/settings_services">
+
+        <androidx.preference.CheckBoxPreference
+            android:key="settings_auto_freeze_service"
+            android:title="@string/settings_auto_freeze_service"
+            android:summary="@string/settings_auto_freeze_service_desc" />
+
+        <androidx.preference.DropDownPreference
+            android:dependency="settings_auto_freeze_service"
+            android:key="settings_auto_freeze_delay"
+            android:title="@string/settings_auto_freeze_delay" />
+
+        <androidx.preference.CheckBoxPreference
+            android:dependency="settings_auto_freeze_service"
+            android:key="settings_dont_freeze_foreground"
+            android:title="@string/settings_dont_freeze_foreground"
+            android:summary="@string/settings_dont_freeze_foreground_desc" />
+
+    </androidx.preference.PreferenceCategory>
+
+    <androidx.preference.PreferenceCategory
+        android:title="@string/settings_vpn">
+
+        <androidx.preference.DropDownPreference
+            android:key="settings_vpn_package"
+            android:title="@string/settings_vpn_package"
+            android:persistent="false" />
+
+        <androidx.preference.CheckBoxPreference
+            android:key="settings_vpn_lockdown"
+            android:title="@string/settings_vpn_lockdown"
+            android:summary="@string/settings_vpn_lockdown_desc"
+            android:persistent="false" />
+
+    </androidx.preference.PreferenceCategory>
+
+    <androidx.preference.PreferenceCategory
+        android:title="@string/settings_about">
+
+        <androidx.preference.Preference
+            android:key="settings_version"
+            android:title="@string/settings_version" />
+
+        <androidx.preference.Preference
+            android:key="settings_author"
+            android:title="@string/settings_author"
+            android:summary="@string/settings_author_value"
+            android:selectable="false" />
+
+        <androidx.preference.Preference
+            android:key="settings_license"
+            android:title="@string/settings_license"
+            android:summary="@string/settings_license_value"
+            android:selectable="false" />
+
+    </androidx.preference.PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>
